@@ -7,12 +7,14 @@ class ChatManager:
         self.model = model
 
         history = [
-            {"role": msg.role, "parts":[ {"text": msg.content}]} for msg in prev_messages
+            {"role": msg.role, "parts": [{"text": msg.content}]}
+            for msg in prev_messages
         ]
 
-        self.chat = self.model.start_chat(history=history) # type: ignore
-        
-        
+        self.chat = self.model.start_chat(history=history, enable_automatic_function_calling=True)  # type: ignore
+
     def send_msg(self, msg: str):
-        stream = self.chat.send_message(msg , stream=True)
-        return stream
+        stream = self.chat.send_message(msg,
+                                        # stream=True
+                                        )
+        return [stream]
