@@ -103,7 +103,7 @@ async def add_chat(
     )
 
 
-@router.get("/messages/{sessionId}/response", responses={400: {"model": ErrorDTO}})
+@router.get("/messages/{sessionId}/response", responses={400: {"model": ErrorDTO}} , response_model=messageDTO)
 async def get_chat_response(
     sessionId: int,
     request : Request,
@@ -129,20 +129,34 @@ async def get_chat_response(
     last_msg = msgs[-1]
     gemManager = GeminiChatManager(await get_model() , prev_msgs )
 
-    response_stream = gemManager.send_msg(last_msg.content)
-    async def simulate_response():
-        # Simulate a large response by sending chunks of text
-        total_msg = ""
+    result = gemManager.send_msg(last_msg.content)
+    
+    resp , err = manager.add_chat_msg(session_id=sessionId, role="model", content=result.text)
+    
+    if err:
+        return JSONResponse(status_code=400, content=err.model_dump())
 
-        for part in response_stream:
-            # if await request.is_disconnected():
-            #     print("Client disconnected")
-            #     return 
+    
 
-            total_msg += part.text
-            yield "data: " + part.text + "\n\n"
-            # yield "data: "+ json.dumps({"answer" : large_text[i : i + chunk_size] , "test" : 2 }) + "\n\n"
+    assert resp
+    return messageDTO(
+        role=resp.role, content=resp.content, date=resp.created_at, id=resp.id
+    )
+
+    # response_stream = result.stream()
+    # async def simulate_response():
+    #     # Simulate a large response by sending chunks of text
+    #     total_msg = ""
+
+    #     for part in response_stream:
+    #         # if await request.is_disconnected():
+    #         #     print("Client disconnected")
+    #         #     return 
+    #         print("part")
+    #         total_msg += part.text
+    #         yield "data: " + part.text + "\n\n"
+    #         # yield "data: "+ json.dumps({"answer" : large_text[i : i + chunk_size] , "test" : 2 }) + "\n\n"
         
-        manager.add_chat_msg(session_id=sessionId, role="model", content=total_msg)
+    #     manager.add_chat_msg(session_id=sessionId, role="model", content=total_msg)
 
-    return StreamingResponse(simulate_response(), media_type="text/event-stream")
+    # return StreamingResponse(simulate_response(), media_type="text/event-stream")

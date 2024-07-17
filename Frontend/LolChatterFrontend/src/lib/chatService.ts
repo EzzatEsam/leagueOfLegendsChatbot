@@ -125,7 +125,11 @@ export class ChatService {
     return result;
   }
 
-  public  getMsgResponse(sessionId: number , onRcv :(data: string) => void , onClose: () => void) : AbortController  {
+  public getMsgResponse(
+    sessionId: number,
+    onRcv: (data: string) => void,
+    onClose: () => void
+  ): AbortController {
     const url = `${this.serverAddr}/chatting/messages/${sessionId}/response`;
     const controller = new AbortController();
     const signal = controller.signal;
@@ -141,8 +145,17 @@ export class ChatService {
       onclose: () => {
         onClose();
       },
-      signal
+      signal,
     });
     return controller;
+  }
+
+  public getMsgResponseNoSSE(sessionId: number): Promise<Result<chatMessage>> {
+    const url = `${this.serverAddr}/chatting/messages/${sessionId}/response`;
+    const options = {
+      method: "GET",
+      headers: this.getHeaders(),
+    };
+    return this.request<chatMessage>(url, options);
   }
 }

@@ -23,9 +23,9 @@ fetcher = LolDataFetcher()
 preProcessor = DataPostProcessor()
 
 # File names
-patches_file = "patches.pkl"
-items_file = "items.pkl"
-champions_file = "champions.pkl"
+patches_file = r"lol_chatter_backend/cached/patches.pkl"
+items_file = r"lol_chatter_backend/cached/items.pkl"
+champions_file = r"lol_chatter_backend/cached/champions.pkl"
 
 # Fetch patches
 patches = fetcher.get_patches()

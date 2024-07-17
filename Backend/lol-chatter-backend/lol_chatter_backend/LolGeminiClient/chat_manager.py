@@ -14,7 +14,7 @@ class ChatManager:
         self.chat = self.model.start_chat(history=history, enable_automatic_function_calling=True)  # type: ignore
 
     def send_msg(self, msg: str):
-        stream = self.chat.send_message(msg,
+        result = self.chat.send_message(msg,
                                         # stream=True
                                         )
-        return [stream]
+        return result

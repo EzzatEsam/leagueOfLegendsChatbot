@@ -1,10 +1,10 @@
 import React from "react";
-import { Layout } from "antd";
+import { Layout, theme } from "antd";
 import Navbar from "../components/navbar";
 import Sider from "antd/es/layout/Sider";
 import SideBar from "../components/sideBar";
 import { TokenManager } from "../lib/tokenManager";
-import { Outlet, useLoaderData } from "react-router-dom";
+import {  useLoaderData } from "react-router-dom";
 import { HomePageLoadingData } from "../models/pageLoadData";
 import { useNavigate } from "react-router-dom";
 import MsgsWindow from "../components/msgsWindow";
@@ -176,19 +176,22 @@ const handleSignOut = () => {
 export const ChatPage: React.FC = () => {
   let navigate = useNavigate();
 
+  const {
+    token: { colorBgLayout },
+  } = theme.useToken();
   // const [textAreaText, setTextAreaText] = useState<string>("");
 
   const loadingData: HomePageLoadingData =
     useLoaderData() as HomePageLoadingData;
-  let { user, chats , chatId } = loadingData;
+  let { user, chats, chatId } = loadingData;
 
-  let chatIdVerified : number|null = null;
+  let chatIdVerified: number | null = null;
   if (chatId !== null && !isNaN(parseInt(chatId))) {
     chatIdVerified = parseInt(chatId);
   }
   console.log("ChatPage rendered");
-  console.log(chats)
-  console.log(user)
+  console.log(chats);
+  console.log(user);
   const navigateToChat = (id: number | null) => {
     console.log("Navigating to chat", id);
     let newurl = "/chats/";
@@ -203,8 +206,14 @@ export const ChatPage: React.FC = () => {
   // setTextAreaText("");
 
   return (
-    <Layout style={{ height: "100vh" }}>
-      <Sider width="20%" collapsible breakpoint="lg">
+    <Layout style={{ height: "100vh", background: colorBgLayout }}>
+      <Sider
+        width="20%"
+        collapsible
+        breakpoint="lg"
+        style={{ background: colorBgLayout }}
+        className="shadow-md rounded-xl"
+      >
         <SideBar
           chats={chats}
           selectedIdx={chatIdVerified}
@@ -216,10 +225,10 @@ export const ChatPage: React.FC = () => {
         <Navbar user={user} onSignOut={handleSignOut} appName="LolChatter" />
         <Content
           style={{
-            padding: "24px",
             overflow: "auto",
             // height: "75vh",
             margin: 0,
+            background: colorBgLayout,
           }}
         >
           <MsgsWindow chatId={chatIdVerified}></MsgsWindow>

@@ -1,4 +1,4 @@
-import { Col, Flex, Form } from "antd";
+import { Col, Flex, Form, Space } from "antd";
 import { chatMessage } from "../models/chat";
 import MsgBox from "./chatBox";
 import TextArea from "antd/es/input/TextArea";
@@ -7,6 +7,7 @@ import { ChatService } from "../lib/chatService";
 import { TokenManager } from "../lib/tokenManager";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+import { Footer } from "antd/es/layout/layout";
 
 const MsgsWindow: React.FC<{ chatId: number | null }> = ({ chatId }) => {
   const [messages, setMessages] = useState<chatMessage[]>([]);
@@ -98,39 +99,50 @@ const MsgsWindow: React.FC<{ chatId: number | null }> = ({ chatId }) => {
     setMessages((prev) => [...prev, tempResponse]);
     // setMessages((prev) => [...prev, tempResponse]);
     setInputDisabled(true);
-    let controller = chatService.getMsgResponse(
-      chatId!,
-      (msg) => {
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          const modified: chatMessage = {
-            chatId: last.chatId,
-            content: last.content + msg,
-            date: new Date(),
-            id: last.id,
-            role: last.role,
-          };
-          let copy = [...prev];
-          copy[copy.length - 1] = modified;
-          return copy;
-        });
-      },
-      () => {
-        setInputDisabled(false);
-        setController(null);
-        // updateData();
-      }
-    );
+    // let controller = chatService.getMsgResponse(
+    //   chatId!,
+    //   (msg) => {
+    //     setMessages((prev) => {
+    //       const last = prev[prev.length - 1];
+    //       const modified: chatMessage = {
+    //         chatId: last.chatId,
+    //         content: last.content + msg,
+    //         date: new Date(),
+    //         id: last.id,
+    //         role: last.role,
+    //       };
+    //       let copy = [...prev];
+    //       copy[copy.length - 1] = modified;
+    //       return copy;
+    //     });
+    //   },
+    //   () => {
+    //     setController(null);
+    //     // updateData();
+    //   }
+    // );
 
-    setController(controller);
+    // setController(controller);
+
+    let result = await chatService.getMsgResponseNoSSE(chatId!);
+    if (result.success) {
+      setMessages((prev) => {
+        let copy = [...prev];
+        copy[copy.length - 1] = result.data!;
+        return copy;
+      });
+    } else {
+      messageApi.error(result.message);
+    }
+    setInputDisabled(false);
   };
 
   return (
     <>
       {contextHolder}
 
-      <Flex vertical style={{ height: "100%" }}>
-        <Col className="w-full" style={{ flex: 1, overflowY: "auto" }}>
+      <Flex vertical style={{ height: "100%" }} >
+        <Col className="w-full p-6" style={{ flex: 1, overflowY: "auto" }} >
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -143,10 +155,31 @@ const MsgsWindow: React.FC<{ chatId: number | null }> = ({ chatId }) => {
             </div>
           ))}
         </Col>
-        <div style={{ position: "sticky", bottom: 0, width: "100%" }}>
-          <Flex justify="space-evenly" align="center" className="w-full">
-            <Form className="w-full" form={form} disabled={inputDisabled}>
-              <Form.Item name="prompt" rules={[{ required: true }]}>
+        <Footer style={{ textAlign: "center", justifyContent: "center" , margin : 0}} className="shadow-md">
+          
+            <Form
+              className="  p-2 justify-center align-middle w-full"
+              style={{
+                display: "block",
+                justifyContent: "center",
+                alignItems: "center",
+
+                width: "100%",
+              }}
+              form={form}
+              disabled={inputDisabled}
+            >
+              <Form.Item
+                name="prompt"
+                rules={[{ required: true }]}
+                style={{
+                  display: "block",
+                  justifyContent: "center",
+                  alignItems: "center",
+
+                  width: "100%",
+                }}
+              >
                 <TextArea
                   showCount
                   placeholder="Enter a prompt here..."
@@ -162,8 +195,7 @@ const MsgsWindow: React.FC<{ chatId: number | null }> = ({ chatId }) => {
                 />
               </Form.Item>
             </Form>
-          </Flex>
-        </div>
+        </Footer>
       </Flex>
     </>
   );
