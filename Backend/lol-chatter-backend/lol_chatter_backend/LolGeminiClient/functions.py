@@ -13,50 +13,58 @@ def get_latest_patch() -> str:
     Returns:
         str: The latest patch.
     """
+    print("Model requested latest patch")
     return patches[-1]
 
 
-def get_champion_data(champion_name: str) -> dict:
+def get_champion_data(champion_names: list[str]) -> list:
     """
-    Retrieves the data for a champion based on the given champion name.
+    Retrieves the data for a list of champions based on the given champion names.
 
     Args:
-        champion_name (str): The name of the champion.
+        champion_names (list[str]): A list of champion names.
 
     Returns:
-        dict: The data for the champion if found, None otherwise.
+        list: A list of dictionaries containing the data for each champion.
     """
-    champion_name = champion_name.strip().lower()
-    champ = champions_processed.get(champion_name, None)
-    if champ is None:
-        closest_match = difflib.get_close_matches(
-            champion_name, list(champions_processed.keys())
-        )
-        if closest_match:
-            return get_champion_data(closest_match[0])
+    results = []
+    for champion_name in champion_names:
+        print(f"Model requested data for {champion_name}")
+        champion_name = champion_name.strip().lower()
+        champ = champions_processed.get(champion_name, None)
+        if champ is None:
+            closest_match = difflib.get_close_matches(
+                champion_name, list(champions_processed.keys())
+            )
+            if closest_match:
+                champ = get_champion_data([closest_match[0]])[0]
+        results.append(champ)
+    return results
 
-    return champ
 
-
-def get_item_data(item_name: str) -> dict:
+def get_item_data(item_names: list[str]) -> list:
     """
-    Retrieves the data for an item based on the given item name.
+    Retrieves the data for a list of items based on the given item names.
 
     Args:
-        item_name (str): The name of the item.
+        item_names (list[str]): A list of item names.
 
     Returns:
-        dict: The data for the item if found, None otherwise.
+        list: A list of dictionaries containing the data for each item.
     """
-    item_name = item_name.strip().lower()
-    item = items_processed.get(item_name, None)
-    if item is None:
-        closest_match = difflib.get_close_matches(
-            item_name, list(items_processed.keys())
-        )
-        if closest_match:
-            return get_item_data(closest_match[0])
-    return item
+    results = []
+    for item_name in item_names:
+        print(f"Model requested data for {item_name}")
+        item_name = item_name.strip().lower()
+        item = items_processed.get(item_name, None)
+        if item is None:
+            closest_match = difflib.get_close_matches(
+                item_name, list(items_processed.keys())
+            )
+            if closest_match:
+                item = get_item_data([closest_match[0]])[0]
+        results.append(item)
+    return results
 
 
 def get_item_names() -> list[str]:
@@ -66,6 +74,8 @@ def get_item_names() -> list[str]:
     Returns:
         list[str]: A list of item names.
     """
+    
+    print("Model requested item names")
     return list(items_processed.keys())
 
 
@@ -76,6 +86,8 @@ def get_champ_names() -> list[str]:
     :return: A list of strings representing the names of all champions.
     :rtype: list[str]
     """
+    
+    print("Model requested champion names")
     return list(champions_processed.keys())
 
 

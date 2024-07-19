@@ -58,6 +58,15 @@ export class ChatService {
     };
   }
 
+  public async getAvailableModels(): Promise<Result<string[]>> {
+    const url = `${this.serverAddr}/chatting/models`;
+    const options = {
+      method: "GET",
+      headers: this.getHeaders(),
+    };
+    return this.request<string[]>(url, options);
+  }
+
   public async getSessions(): Promise<Result<chat[]>> {
     const url = `${this.serverAddr}/chatting/sessions`;
     const options = {
@@ -150,8 +159,11 @@ export class ChatService {
     return controller;
   }
 
-  public getMsgResponseNoSSE(sessionId: number): Promise<Result<chatMessage>> {
-    const url = `${this.serverAddr}/chatting/messages/${sessionId}/response`;
+  public getMsgResponseNoSSE(
+    sessionId: number,
+    selectedModel: number
+  ): Promise<Result<chatMessage>> {
+    const url = `http://localhost:8000/chatting/messages/response?sessionId=${sessionId}&modelIndex=${selectedModel}`;
     const options = {
       method: "GET",
       headers: this.getHeaders(),

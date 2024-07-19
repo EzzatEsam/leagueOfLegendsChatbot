@@ -11,7 +11,7 @@ class ChatManager:
             for msg in prev_messages
         ]
 
-        self.chat = self.model.start_chat(history=history, enable_automatic_function_calling=True)  # type: ignore
+        self.chat = self.model.start_chat(history=history, enable_automatic_function_calling=True )  # type: ignore
 
     def send_msg(self, msg: str):
         result = self.chat.send_message(msg,

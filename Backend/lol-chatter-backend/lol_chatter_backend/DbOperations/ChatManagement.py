@@ -1,4 +1,6 @@
 from typing import Tuple
+
+from sqlalchemy import func
 from lol_chatter_backend.DTOs.error_DTO import ErrorDTO
 from lol_chatter_backend.Models.chat import ChatSession, ChatMessage
 from sqlalchemy.orm import Session
@@ -46,6 +48,34 @@ class ChatManager:
             return ErrorDTO(message="Failed to delete chat")
         return None
 
+    def update_chat_session(
+        self, chat_id: int, title: str) -> Tuple[ChatSession | None, ErrorDTO | None]:
+        """
+        Updates a chat session in the database.
+
+        Args:
+            chat_id (int): The ID of the chat session to update.
+            title (str): The new title for the chat session.
+
+        Returns:
+            Tuple[ChatSession | None, ErrorDTO | None]: A tuple containing the updated chat session, or None if not found.
+        """
+        try:
+            chat = self.db.query(ChatSession).filter(ChatSession.id == chat_id).first()
+            if not chat:
+                return None, ErrorDTO(message="Chat session not found")
+            chat.title = title
+            self.db.commit()
+            
+        except Exception as e:
+            print(e)
+            self.db.rollback()
+            return None, ErrorDTO(message="Failed to update chat")
+        return chat, None
+            
+    
+    
+    
     def get_user_chats(self, user_id: int) -> Tuple[list[ChatSession], ErrorDTO | None]:
         """
         Retrieves all chat sessions associated with a given user.
@@ -107,9 +137,15 @@ class ChatManager:
         Returns:
             Tuple[ChatMessage | None, ErrorDTO | None]: A tuple containing the created chat message if successful, and None if there was an error.
         """
+        session = self.db.query(ChatSession).filter(ChatSession.id == session_id).first()
+        if not session:
+            return None, ErrorDTO(message="Chat session not found")
+        
+        
         msg = ChatMessage(chat_session_id=session_id, role=role, content=content)
         try:
             self.db.add(msg)
+            session.updated_at = func.now()
             self.db.commit()
             self.db.refresh(msg)
         except Exception as e:

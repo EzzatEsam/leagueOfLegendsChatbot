@@ -33,12 +33,14 @@ const router = createBrowserRouter([
       if (user) {
         const chatsService = new ChatService(TokenManager.token!);
         const chats = await chatsService.getSessions();
+        const models = await chatsService.getAvailableModels();
         if (chats.success) {
           console.log("all success>");
           const data: HomePageLoadingData = {
             user: user,
             chats: chats.data!,
             chatId: params.chatId!,
+            availableModelNames: models.data!,
           };
           console.log(data);
           return data;
@@ -47,6 +49,7 @@ const router = createBrowserRouter([
             user: user,
             chats: [],
             chatId: params.chatId!,
+            availableModelNames: [],
           };
           return data;
         }

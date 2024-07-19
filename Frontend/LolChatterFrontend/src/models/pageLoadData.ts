@@ -5,5 +5,6 @@ export interface HomePageLoadingData {
   user: User;
   chats: chat[];
   chatId: string;
+  availableModelNames : string[];
 }
 

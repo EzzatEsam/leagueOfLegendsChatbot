@@ -4,7 +4,7 @@ import Navbar from "../components/navbar";
 import Sider from "antd/es/layout/Sider";
 import SideBar from "../components/sideBar";
 import { TokenManager } from "../lib/tokenManager";
-import {  useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import { HomePageLoadingData } from "../models/pageLoadData";
 import { useNavigate } from "react-router-dom";
 import MsgsWindow from "../components/msgsWindow";
@@ -175,7 +175,7 @@ const handleSignOut = () => {
 
 export const ChatPage: React.FC = () => {
   let navigate = useNavigate();
-
+  const [selectedModelIdx, setSelectedModelIdx] = React.useState<number>(0);
   const {
     token: { colorBgLayout },
   } = theme.useToken();
@@ -183,7 +183,7 @@ export const ChatPage: React.FC = () => {
 
   const loadingData: HomePageLoadingData =
     useLoaderData() as HomePageLoadingData;
-  let { user, chats, chatId } = loadingData;
+  let { user, chats, chatId, availableModelNames } = loadingData;
 
   let chatIdVerified: number | null = null;
   if (chatId !== null && !isNaN(parseInt(chatId))) {
@@ -222,7 +222,17 @@ export const ChatPage: React.FC = () => {
       </Sider>
 
       <Layout style={{ height: "100vh" }}>
-        <Navbar user={user} onSignOut={handleSignOut} appName="LolChatter" />
+        <Navbar
+          user={user}
+          onSignOut={handleSignOut}
+          appName="LolChatter"
+          selectedModelIdx={selectedModelIdx}
+          availableModels={availableModelNames}
+          onModelSelect={(modelName) => {
+            let idx = availableModelNames.indexOf(modelName);
+            setSelectedModelIdx(idx);
+          }}
+        />
         <Content
           style={{
             overflow: "auto",
@@ -231,7 +241,10 @@ export const ChatPage: React.FC = () => {
             background: colorBgLayout,
           }}
         >
-          <MsgsWindow chatId={chatIdVerified}></MsgsWindow>
+          <MsgsWindow
+            chatId={chatIdVerified}
+            selectedModel={selectedModelIdx}
+          ></MsgsWindow>
         </Content>
         {/* <Footer style={{ textAlign: "center", justifyContent: "center" }}>
          
