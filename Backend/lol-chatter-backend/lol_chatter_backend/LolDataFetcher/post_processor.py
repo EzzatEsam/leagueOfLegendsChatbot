@@ -1,4 +1,5 @@
 import copy
+import pprint
 import tqdm
 
 
@@ -11,17 +12,18 @@ class DataPostProcessor:
         for k, v in items_data.items():
             item_id_names[k] = v["name"]
 
-        items = {}
+        items: dict = {}
         if self.verbose:
             print(f"Preprocessing  {len(items_data.keys())} items")
-            pbar  = tqdm.tqdm(total=len(items_data), desc="Preprocessing items")
+            pbar = tqdm.tqdm(total=len(items_data), desc="Preprocessing items")
         for item in items_data.values():
             key = str(item["name"]).lower()
-            items[key] = self._preprocess_item(item, item_id_names)
+            item_processed = self._preprocess_item(item, item_id_names)
+            items[key] = item_processed
             if self.verbose:
 
-                pbar.set_description(f"Preprocessing {item['name']}") # type: ignore
-                pbar.update(1) # type: ignore
+                pbar.set_description(f"Preprocessing {item['name']}")  # type: ignore
+                pbar.update(1)  # type: ignore
         return items
 
     def get_champions_list(self, champions_data: dict) -> dict:
@@ -32,19 +34,20 @@ class DataPostProcessor:
             pbar = tqdm.tqdm(total=len(champions_data), desc="Preprocessing champions")
         for champion in champions_data.values():
             key = str(champion["name"]).lower()
-            
-            champions[key] =  (self._preprocess_champion(champion))
+            champion_processed = self._preprocess_champion(champion)
+            champions[key] = champion_processed
             if self.verbose:
-                pbar.set_description(f"Preprocessing {champion['name']}") # type: ignore
-                pbar.update(1) # type: ignore
+                pbar.set_description(f"Preprocessing {champion['name']}")  # type: ignore
+                pbar.update(1)  # type: ignore
         return champions
 
     def _preprocess_champion(self, champion: dict) -> dict:
         new_champion = copy.deepcopy(champion)
 
         new_champion.pop("id", None)
-        new_champion.pop("icon", None)
+        # new_champion.pop("icon", None)
         new_champion.pop("skins", None)
+        new_champion.pop("key", None)
 
         new_champion["stats"] = self._preprocess_stats(new_champion["stats"])
         for ability_k in new_champion["abilities"].keys():
@@ -58,7 +61,7 @@ class DataPostProcessor:
     def _preprocess_ability(self, ability: dict) -> dict:
 
         new_ability = copy.deepcopy(ability)
-        new_ability.pop("icon", None)
+        # new_ability.pop("icon", None)
 
         def process_modifier_recurs(input_dict: dict) -> None:
             for k, v in input_dict.items():
@@ -93,7 +96,7 @@ class DataPostProcessor:
         new_item.pop("noEffects", None)
         new_item.pop("removed", None)
         new_item.pop("requiredAlly", None)
-        new_item.pop("icon", None)
+        # new_item.pop("icon", None)
         new_item.pop("specialRecipe", None)
         new_item.pop("iconOverlay", None)
 
@@ -137,3 +140,17 @@ class DataPostProcessor:
             if len(stats_new[k]) == 0:
                 stats_new.pop(k)
         return stats_new
+
+
+def dict2str(dct: dict) -> str:
+    name = dct["name"]
+    champ_string = ""
+    for k in dct.keys():
+        v = copy.deepcopy(dct[k])
+        if isinstance(v, dict):
+            for k2 in v.copy().keys():
+                v[f"{name} {k2}"] = v.pop(k2)
+        champ_string += f"{name} {k}: {v if v  else None}\n"
+
+    champ_string = champ_string.replace("'", "").replace('"', "")
+    return champ_string

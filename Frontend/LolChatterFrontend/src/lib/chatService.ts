@@ -136,11 +136,11 @@ export class ChatService {
 
   public getMsgResponse(
     sessionId: number,
+    selectedModel: number,
     onRcv: (data: string) => void,
     onClose: () => void
   ): AbortController {
-    const url = `${this.serverAddr}/chatting/messages/${sessionId}/response`;
-    const controller = new AbortController();
+    const url = `http://localhost:8000/chatting/messages/response?sessionId=${sessionId}&modelIndex=${selectedModel}`;    const controller = new AbortController();
     const signal = controller.signal;
     fetchEventSource(url, {
       method: "GET",
@@ -163,7 +163,7 @@ export class ChatService {
     sessionId: number,
     selectedModel: number
   ): Promise<Result<chatMessage>> {
-    const url = `http://localhost:8000/chatting/messages/response?sessionId=${sessionId}&modelIndex=${selectedModel}`;
+    const url = `http://localhost:8000/chatting/messages/response?sessionId=${sessionId}&modelIndex=${selectedModel}&streaming=false`;
     const options = {
       method: "GET",
       headers: this.getHeaders(),

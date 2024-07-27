@@ -80,7 +80,6 @@ const MsgsWindow: React.FC<{
         error = true;
         messageApi.error(result.message);
         navigate(`/chats/${chatId}`, { replace: true });
-
       } else {
         setMessages((prev) => [...prev, result.data!]);
       }
@@ -110,31 +109,36 @@ const MsgsWindow: React.FC<{
     setMessages((prev) => [...prev, tempResponse]);
     setInputDisabled(true);
 
-    // let lastMsg = messages[messages.length - 1];
-    // let controller = chatService.getMsgResponse(
-    //   chatId!,
-    //   (msg) => {
-    //     setMessages((prev) => {
-    //       const last = prev[prev.length - 1];
-    //       const modified: chatMessage = {
-    //         chatId: last.chatId,
-    //         content: last.content + msg,
-    //         date: new Date(),
-    //         id: last.id,
-    //         role: last.role,
-    //       };
-    //       let copy = [...prev];
-    //       copy[copy.length - 1] = modified;
-    //       return copy;
-    //     });
-    //   },
-    //   () => {
-    //     setController(null);
-    //     // updateData();
-    //   }
-    // );
+    // streaming
 
-    // setController(controller);
+    /* let controller = chatService.getMsgResponse(
+      chatId!,
+      selectedModel,
+      (msg) => {
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          const modified: chatMessage = {
+            chatId: last.chatId,
+            content: last.content + msg,
+            date: new Date(),
+            id: last.id,
+            role: last.role,
+          };
+          let copy = [...prev];
+          copy[copy.length - 1] = modified;
+          return copy;
+        });
+      },
+      () => {
+        setController(null);
+        setInputDisabled(false);
+        navigate(`/chats/${chatId}`, { replace: true });
+      }
+    );
+
+    setController(controller); */
+
+    // non streaming
 
     let result = await chatService.getMsgResponseNoSSE(chatId!, selectedModel);
     if (result.success) {

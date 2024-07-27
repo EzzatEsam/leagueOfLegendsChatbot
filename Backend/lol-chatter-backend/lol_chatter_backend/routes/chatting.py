@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import AsyncIterator
 from fastapi import APIRouter, Depends, Body, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from lol_chatter_backend.DTOs import sessionDTO
@@ -123,6 +124,7 @@ async def get_current_models(user: User = Depends(get_current_user)):
 async def get_chat_response(
     sessionId: int,
     modelIndex: int = 0,
+    streaming: bool = True,
     user: User = Depends(get_current_user),
     db=Depends(get_db),
 ):
@@ -135,8 +137,13 @@ async def get_chat_response(
     model = models[modelIndex]
 
     # Temporary
-    if model == "Gemini-1.5-Pro" :
-        return JSONResponse(status_code=400, content= ErrorDTO(message = "What do you think I am rich or something? Use the regular model for fucks sake!").model_dump())
+    if model == "Gemini-1.5-Pro":
+        return JSONResponse(
+            status_code=400,
+            content=ErrorDTO(
+                message="What do you think I am rich or something? Use the regular model for fucks sake!"
+            ).model_dump(),
+        )
 
     print(f"User {user.id} requested model {model}")
     manager = ChatManager(db)
@@ -158,45 +165,44 @@ async def get_chat_response(
     # generate response
     prev_msgs = msgs[:-1]
     last_msg = msgs[-1]
-    gemManager = GeminiChatManager(await get_model(model), prev_msgs)
+    gemManager = GeminiChatManager(await get_model(model))
 
-    result = gemManager.send_msg(last_msg.content)
+    if streaming:
+        result = gemManager.send_msg_streaming(last_msg.content, history=prev_msgs)
 
-    resp, err = manager.add_chat_msg(
-        session_id=sessionId, role="model", content=result.text
-    )
+        async def simulate_response():
+            # Simulate a large response by sending chunks of text
+            total_msg = ""
 
-    
-    if err:
-        return JSONResponse(status_code=400, content=err.model_dump())
+            async for part in result:
+                # if await request.is_disconnected():
+                #     print("Client disconnected")
+                #     return
+                print(part)
+                total_msg += part
+                yield "data: " + part + "\n\n"
+                # yield "data: "+ json.dumps({"answer" : large_text[i : i + chunk_size] , "test" : 2 }) + "\n\n"
 
-    refreshed_msgs , err = manager.get_session_messages(session_id=sessionId)
-    
-    
-    summarizer = Summarizer(get_summarizer_model())
-    summary = summarizer.get_summarized_text(refreshed_msgs)
-    
-    manager.update_chat_session(chat_id=sessionId, title=summary)
-    
-    assert resp
-    return messageDTO(
-        role=resp.role, content=resp.content, date=resp.created_at, id=resp.id
-    )
+            manager.add_chat_msg(session_id=sessionId, role="model", content=total_msg)
 
-    # response_stream = result.stream()
-    # async def simulate_response():
-    #     # Simulate a large response by sending chunks of text
-    #     total_msg = ""
+        return StreamingResponse(simulate_response(), media_type="text/event-stream")
+    else:
+        result = gemManager.send_msg(last_msg.content, history=prev_msgs)
+        resp, err = manager.add_chat_msg(
+            session_id=sessionId, role="model", content=result
+        )
 
-    #     for part in response_stream:
-    #         # if await request.is_disconnected():
-    #         #     print("Client disconnected")
-    #         #     return
-    #         print("part")
-    #         total_msg += part.text
-    #         yield "data: " + part.text + "\n\n"
-    #         # yield "data: "+ json.dumps({"answer" : large_text[i : i + chunk_size] , "test" : 2 }) + "\n\n"
+        if err:
+            return JSONResponse(status_code=400, content=err.model_dump())
 
-    #     manager.add_chat_msg(session_id=sessionId, role="model", content=total_msg)
+        refreshed_msgs, err = manager.get_session_messages(session_id=sessionId)
 
-    # return StreamingResponse(simulate_response(), media_type="text/event-stream")
+        summarizer = Summarizer(get_summarizer_model())
+        summary = summarizer.get_summarized_text(refreshed_msgs)
+
+        manager.update_chat_session(chat_id=sessionId, title=summary)
+
+        assert resp
+        return messageDTO(
+            role=resp.role, content=resp.content, date=resp.created_at, id=resp.id
+        )
