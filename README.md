@@ -21,5 +21,9 @@
 ![Login](github/screenshots/scrn1.png)
 2. Chat page
 ![Chat](github/screenshots/scrn2.png)
-3. Example video 
-https://raw.githubusercontent.com/EzzatEsam/leagueOfLegendsChatbot/main/github/screenshots/vid1.mp4
+3. Example video
+
+   
+
+https://github.com/user-attachments/assets/f29df13e-a71f-4cca-9117-57444702c00f
+
