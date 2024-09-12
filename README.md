@@ -22,4 +22,4 @@
 2. Chat page
 ![Chat](github/screenshots/scrn2.png)
 3. Example video 
-![Video](github/screenshots/vid1.mp4)
+https://raw.githubusercontent.com/EzzatEsam/leagueOfLegendsChatbot/main/github/screenshots/vid1.mp4
