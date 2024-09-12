@@ -48,8 +48,8 @@ class ChatManager:
                 chats.append(AIMessage(content=msg.content))
 
         return chats
-    
-    def send_msg_streaming(self, user_msg: str, history: list[ChatMessage] = [] ):
+
+    def send_msg_streaming(self, user_msg: str, history: list[ChatMessage] = []):
         chats = self.process_history(history)
 
         return self.chain.astream({"input": user_msg, "chat_history": chats})

@@ -30,6 +30,8 @@ const LoginPage: React.FC = () => {
       {contextHolder}
       <Row justify="center" style={{ width: "100vw", marginTop: "50px" }}>
         <Space direction="vertical" align="center" size={"small"}>
+          <h1 className="text-3xl">LolChatter</h1>
+          <img src="/logo.png" alt="logo" className="w-40 h-40 m-4" />
           <h2>Login to Your Account</h2>
           <p>Please enter your credentials to log in</p>
           <Form

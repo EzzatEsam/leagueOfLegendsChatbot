@@ -15,5 +15,7 @@ poetry install
 ```bash
 uvicorn lol_chatter_backend.main:app --reload
 ```
-You can remove the `--reload` flag if you want to run the app without hot reloading functionality.
+* You must provide the `GOOGLE_API_KEY` in your environment.
+* You can remove the `--reload` flag if you want to run the app without hot reloading functionality.
+* You may need to specity the port number using the `--port` flag.
 

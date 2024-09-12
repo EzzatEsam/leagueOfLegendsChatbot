@@ -8,6 +8,8 @@ import { TokenManager } from "../lib/tokenManager";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { Footer } from "antd/es/layout/layout";
+import Suggestions from "./SuggestionsComponent";
+import { suggestions } from "../lib/suggestions";
 
 const MsgsWindow: React.FC<{
   chatId: number | null;
@@ -164,18 +166,31 @@ const MsgsWindow: React.FC<{
           style={{ flex: 1, overflowY: "auto" }}
           ref={colRef}
         >
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              style={{
-                display: "flex",
-                justifyContent: msg.role !== "user" ? "flex-start" : "flex-end",
+          {chatId === null ? (
+            <Suggestions
+              suggestions={suggestions}
+              logoUrl={"/logo.png"}
+              onSuggestionClick={function (suggestion: string): void {
+                form.setFieldsValue({ prompt: suggestion });
+                handleSubmit();
               }}
-            >
-              <MsgBox msg={msg} />
-            </div>
-          ))}
+            />
+          ) : (
+            messages.map((msg) => (
+              <div
+                key={msg.id}
+                style={{
+                  display: "flex",
+                  justifyContent:
+                    msg.role !== "user" ? "flex-start" : "flex-end",
+                }}
+              >
+                <MsgBox msg={msg} />
+              </div>
+            ))
+          )}
         </Col>
+
         <Footer
           style={{ textAlign: "center", justifyContent: "center", margin: 0 }}
           className="shadow-md"

@@ -78,17 +78,18 @@ const SideBar: React.FC<SideBarProps> = ({
     };
   });
   return (
-    <Col className="p-2 ">
+    <Col className="p-2 items-center text-center">
       <Button
-        className="w-full my-2"
+        className=" my-2"
         onClick={() => {
           setSelectedId(null);
         }}
       >
+        Add new
         <Icons.IconWrite />
       </Button>
       <Menu
-        className="w-full rounded-md"
+        className="w-full rounded-md text-left"
         items={items}
         mode="inline"
         style={{ height: "80vh", overflowY: "auto" }}

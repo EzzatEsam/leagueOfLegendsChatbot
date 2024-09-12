@@ -34,9 +34,11 @@ const SignupPage: React.FC = () => {
 
   return (
     <>
-    {contextHolder}
+      {contextHolder}
       <Row justify="center" style={{ width: "100vw", marginTop: "50px" }}>
         <Space direction="vertical" align="center" size={"small"}>
+          <h1 className="text-3xl">LolChatter</h1>
+          <img src="/logo.png" alt="logo" className="w-20 h-20 m-4" />
           <h2>Create Your Account</h2>
           <p>Please fill in the form to sign up</p>
           <Form
